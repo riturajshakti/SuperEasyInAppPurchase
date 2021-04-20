@@ -1,0 +1,31 @@
+name: super_easy_in_app_purchase
+description: A flutter plugin for creating in app purchase on Android/iOS in a super simple way.
+version: 0.0.1
+author: Rituraj Shakti
+homepage: https://github.com/riturajshakti/SuperEasyInAppPurchase
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.20.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  in_app_purchase: ^0.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.riturajshakti.super_easy_in_app_purchase
+        pluginClass: SuperEasyInAppPurchasePlugin
+      ios:
+        pluginClass: SuperEasyInAppPurchasePlugin

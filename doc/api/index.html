@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 0.39.0">
+  <meta name="description" content="super_easy_in_app_purchase API docs, for the Dart programming language.">
+  <title>super_easy_in_app_purchase - Dart API docs</title>
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="static-assets/github.css">
+  <link rel="stylesheet" href="static-assets/styles.css">
+  <link rel="icon" href="static-assets/favicon.png">
+
+</head>
+
+<body data-base-href=""
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/riturajshakti/SuperEasyInAppPurchase">super_easy_in_app_purchase package</a></li>
+  </ol>
+  <div class="self-name">super_easy_in_app_purchase</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+      <form class="search-sidebar" role="search">
+        <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+      </form>
+    </header>
+    
+    <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+      <li><a href="https://github.com/riturajshakti/SuperEasyInAppPurchase">super_easy_in_app_purchase package</a></li>
+    </ol>
+    
+    <h5 class="hidden-xs"><span class="package-name">super_easy_in_app_purchase</span> <span class="package-kind">package</span></h5>
+    <ol>
+          <li class="section-title">Libraries</li>
+          <li><a href="super_easy_in_app_purchase/super_easy_in_app_purchase-library.html">super_easy_in_app_purchase</a></li>
+    </ol>
+  </div>
+
+  <div id="dartdoc-main-content" class="main-content">
+      <section class="desc markdown">
+        <h1 id="super_easy_in_app_purchase">super_easy_in_app_purchase</h1>
+<p>A flutter plugin for creating in app purchase in a super simple way.</p>
+<p>In App Purchase(IAP) is a very complicated thing to implement in any mobile app for many years. Generally, it takes about 200 lines of code(in flutter) just to implement IAP. But I have tried my best to make it as simple as possible using this plugin.</p>
+<p>Please support me via <a href="https://paypal.me/riturajshakti">Donation</a>. Your donation seriously motivates me to build many useful plugins like this.</p>
+<h2 id="how-to-use">How to use</h2>
+<h3 id="step-1">Step 1:</h3>
+<p>First add this package in your <code>pubspec.yaml</code> file:</p>
+<pre class="language-yaml"><code class="language-yaml">dependencies:
+  flutter:
+    sdk: flutter
+  super_easy_in_app_purchase: any
+</code></pre>
+<p>Make sure to <strong>GET</strong> all the pub packages after saving this file.</p>
+<h3 id="step-2">Step 2:</h3>
+<h4 id="android">Android</h4>
+<p>Add the <strong>INTERNET</strong> permission in your <code>AndroidManifest.xml</code> file:</p>
+<pre class="language-xml"><code class="language-xml">&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+</code></pre>
+<h3 id="step-3">Step 3</h3>
+<p>Create in app product in your google play account and app store account. Follow the links for more detail steps:
+<a href="support.google.com/googleplay/android-developer/answer/1153481">Creating In App Product in Google Play Store</a>
+<a href="https://help.apple.com/app-store-connect/#/devae49fb316">Creating In App Product in Apple App Store</a></p>
+<h3 id="step-4">Step 4</h3>
+<p>In your <code>main()</code> function in <code>main.dart</code> file, import the package and add the static method, <code>start()</code>:</p>
+<pre class="language-dart"><code class="language-dart">import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
+void main() {
+  SuperEasyInAppPurchase.start();
+  runApp(MyApp());
+}
+</code></pre>
+<h3 id="step-5">Step 5</h3>
+<p>Finally, use the package</p>
+<h4 id="create-a-class-level-variable-in-your-state-class-of-any-stateful-widget">Create a class level variable in your State class of any stateful widget</h4>
+<p>Also make sure to import the library package in your dart file.</p>
+<pre class="language-dart"><code class="language-dart">class _MyAppState extends State&lt;MyApp&gt; {
+  SuperEasyInAppPurchase inAppPurchase;
+  ...
+</code></pre>
+<h4 id="initialise-that-variable-in-initstate-method">Initialise that variable in <code>initState()</code> method</h4>
+<p>This is the most important and difficult step to understand.</p>
+<pre class="language-dart"><code class="language-dart">@override
+void initState() {
+  super.initState();
+  inAppPurchase = SuperEasyInAppPurchase(
+    // Any of these function will run when its corresponding product gets purchased successfully
+    // For simplicity, I have just printed a message to console
+    whenSuccessfullyPurchased: &lt;String, Function&gt;{
+      'product1': () async =&gt; print('Product 1 purchased!'),
+      'product2': () async =&gt; print('product 2 activated!'),
+    },
+
+    // Any of these function will run when its corresponding product gets refunded
+    // For simplicity, I have just printed a message to console
+    // This is completely an optional
+    whenUpgradeDisabled: &lt;String, Function&gt;{
+      'product1': () async =&gt; print('Product 1 refunded !'),
+      'product2': () async =&gt; print('product 2 refunded !'),
+    },
+  );
+}
+</code></pre>
+<p><code>SuperEasyInAppPurchase()</code> constructor takes two parameters, first one is <code>whenSuccessfullyPurchased</code>, it takes a <code>Map&lt;String, Function&gt;</code> each pair in the map represents a Product ID (String) and its function which will executed after successfull purchase.</p>
+<p>The second optional parameter <code>whenUpgradeDisabled</code> also takes <code>Map&lt;String, Function&gt;</code> but this time, these functions will get executed when one of your product is refunded. So these functions main task is to disable the corresponding product.</p>
+<h4 id="start-a-purchase">Start a purchase</h4>
+<p>Write this line of code in your button's onPressed listener:</p>
+<pre class="language-dart"><code class="language-dart">await inAppPurchase.startPurchase('myProductID');
+</code></pre>
+<p>or if your product is consumable, then use:</p>
+<pre class="language-dart"><code class="language-dart">await inAppPurchase.startPurchase('myProductID', isConsumable: true);
+</code></pre>
+<p><strong>Note:</strong> Consumables are those products which needs to be purchased again and again, like - The fuel of racing car. By default, <code>isConsumable</code> parameter is set to <code>false</code>.</p>
+<h4 id="consumeremove-the-purchase">Consume(remove) the purchase</h4>
+<p>In order to remove the purchase, use:</p>
+<pre class="language-dart"><code class="language-dart">await inAppPurchase.consumePurchase('myProductID');
+</code></pre>
+<p>When you consume a purchase, the user has to purchase it again in order to use its features.</p>
+<h2 id="issues">Issues</h2>
+<p>Don't hesitate to email any issues or feature at <a href="mailto:riturajshakti@gmail.com">riturajshakti@gmail.com</a>.</p>
+<h2 id="want-to-contribute">Want to contribute</h2>
+<p><strong>Please support me via <a href="https://paypal.me/riturajshakti">Donation</a>.
+Your donation seriously motivates me to develop more useful packages like this.</strong></p>
+<h2 id="author">Author</h2>
+<p>This Permission plugin for Flutter is developed by <a href="https://www.freelancer.com/u/riturajshakti">Rituraj Shakti</a>. You can contact me at <a href="mailto:riturajshakti@gmail.com">riturajshakti@gmail.com</a></p>
+      </section>
+      
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="super_easy_in_app_purchase">
+            <span class="name"><a href="super_easy_in_app_purchase/super_easy_in_app_purchase-library.html">super_easy_in_app_purchase</a></span>           
+          </dt>
+          <dd>
+             
+          </dd>
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    super_easy_in_app_purchase
+      0.0.1
+  </span>
+
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="static-assets/typeahead.bundle.min.js"></script>
+<script src="static-assets/highlight.pack.js"></script>
+<script src="static-assets/script.js"></script>
+
+
+</body>
+
+</html>

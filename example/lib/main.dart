@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
       // This is completely an optional, but recommended
       whenUpgradeDisabled: <String, Function>{
         'product1': () async => print('Product 1 refunded !'),
-        'product2': () async => print('product 2 refunded !'),
+        'product2': () async => print('product 2 deactivated !'),
       },
     );
   }

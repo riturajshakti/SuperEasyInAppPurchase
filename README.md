@@ -116,7 +116,7 @@ await inAppPurchase.startPurchase('myProductID', isConsumable: true);
 
 **Note:** Consumables are those products which needs to be purchased again and again, like - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
 
-### Step 8
+### Step 8 (Optional)
 
 Consume(remove) the purchase
 

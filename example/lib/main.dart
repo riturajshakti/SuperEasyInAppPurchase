@@ -55,7 +55,8 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
               child: Text('Activate product 2'),
               onPressed: () async {
-                await inAppPurchase.startPurchase('product2', isConsumable: true);
+                await inAppPurchase.startPurchase('product2',
+                    isConsumable: true);
               },
             ),
             SizedBox(height: 10),

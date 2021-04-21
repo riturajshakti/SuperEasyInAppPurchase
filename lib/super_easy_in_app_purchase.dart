@@ -91,11 +91,14 @@ class SuperEasyInAppPurchase {
     QueryPurchaseDetailsResponse response = await _iap.queryPastPurchases();
 
     for (PurchaseDetails purchaseDetails in response.pastPurchases) {
-      if (purchaseDetails.billingClientPurchase.purchaseState == PurchaseStateWrapper.purchased) {
+      if (purchaseDetails.billingClientPurchase.purchaseState ==
+          PurchaseStateWrapper.purchased) {
         // Activating the pro if product is purchased
         _deliverProduct(purchaseDetails.productID);
       }
-      final pending = Platform.isIOS ? purchaseDetails.pendingCompletePurchase : !purchaseDetails.billingClientPurchase.isAcknowledged;
+      final pending = Platform.isIOS
+          ? purchaseDetails.pendingCompletePurchase
+          : !purchaseDetails.billingClientPurchase.isAcknowledged;
 
       if (pending) {
         InAppPurchaseConnection.instance.completePurchase(purchaseDetails);
@@ -164,7 +167,8 @@ class SuperEasyInAppPurchase {
   /// Start a purchase.
   /// isConsumable parameter checks if the product can be disabled later.
   /// i.e. can be consumed later, using consumeProduct(id)
-  Future<void> startPurchase(String productID, {bool isConsumable = false}) async {
+  Future<void> startPurchase(String productID,
+      {bool isConsumable = false}) async {
     for (var prod in _products) {
       if (_hasPurchased(prod.id) != null) {
         // Already purchased

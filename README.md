@@ -34,15 +34,18 @@ Add the **INTERNET** permission in your `AndroidManifest.xml` file:
 ### Step 3
 
 Create in app product in your google play account and app store account. Follow the links for more detail steps:
+
 [Creating In App Product in Google Play Store](support.google.com/googleplay/android-developer/answer/1153481)
+
 [Creating In App Product in Apple App Store](https://help.apple.com/app-store-connect/#/devae49fb316)
 
 ### Step 4
 
-In your `main()` function in `main.dart` file, import the package and add the static method, `start()`:
+In your `main()` function in `main.dart` file, import the package and add the static method- `start()`:
 
 ```dart
 import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
+
 void main() {
   SuperEasyInAppPurchase.start();
   runApp(MyApp());
@@ -51,19 +54,20 @@ void main() {
 
 ### Step 5
 
-Finally, use the package
-
-#### Create a class level variable in your State class of any stateful widget
-
-Also make sure to import the library package in your dart file.
+Create a class level variable in your State class in the stateful widget
 
 ```dart
+import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
+...
+
 class _MyAppState extends State<MyApp> {
   SuperEasyInAppPurchase inAppPurchase;
   ...
 ```
 
-#### Initialise that variable in `initState()` method
+### Step 6
+
+Initialise the variable in `initState()` method
 
 This is the most important and difficult step to understand.
 
@@ -90,11 +94,13 @@ void initState() {
 }
 ```
 
-`SuperEasyInAppPurchase()` constructor takes two parameters, first one is `whenSuccessfullyPurchased`, it takes a `Map<String, Function>` each pair in the map represents a Product ID (String) and its function which will executed after successfull purchase.
+`SuperEasyInAppPurchase()` constructor takes two parameters, first one is `whenSuccessfullyPurchased`, it takes a `Map<String, Function>` each pair in the map represents a Product ID (String) and its corresponding function which will executed after successfull purchase.
 
-The second optional parameter `whenUpgradeDisabled` also takes `Map<String, Function>` but this time, these functions will get executed when one of your product is refunded. So these functions main task is to disable the corresponding product.
+The second optional parameter `whenUpgradeDisabled` also takes `Map<String, Function>` but this time, these functions will get executed when your product is refunded. So these function's main task is to disable the corresponding product (if already purchased).
 
-#### Start a purchase
+### Step 7
+
+Start a purchase
 
 Write this line of code in your button's onPressed listener:
 
@@ -110,7 +116,9 @@ await inAppPurchase.startPurchase('myProductID', isConsumable: true);
 
 **Note:** Consumables are those products which needs to be purchased again and again, like - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
 
-#### Consume(remove) the purchase
+### Step 8
+
+Consume(remove) the purchase
 
 In order to remove the purchase, use:
 

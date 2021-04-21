@@ -75,26 +75,29 @@
 <pre class="language-xml"><code class="language-xml">&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
 </code></pre>
 <h3 id="step-3">Step 3</h3>
-<p>Create in app product in your google play account and app store account. Follow the links for more detail steps:
-<a href="support.google.com/googleplay/android-developer/answer/1153481">Creating In App Product in Google Play Store</a>
-<a href="https://help.apple.com/app-store-connect/#/devae49fb316">Creating In App Product in Apple App Store</a></p>
+<p>Create in app product in your google play account and app store account. Follow the links for more detail steps:</p>
+<p><a href="support.google.com/googleplay/android-developer/answer/1153481">Creating In App Product in Google Play Store</a></p>
+<p><a href="https://help.apple.com/app-store-connect/#/devae49fb316">Creating In App Product in Apple App Store</a></p>
 <h3 id="step-4">Step 4</h3>
-<p>In your <code>main()</code> function in <code>main.dart</code> file, import the package and add the static method, <code>start()</code>:</p>
+<p>In your <code>main()</code> function in <code>main.dart</code> file, import the package and add the static method- <code>start()</code>:</p>
 <pre class="language-dart"><code class="language-dart">import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
+
 void main() {
   SuperEasyInAppPurchase.start();
   runApp(MyApp());
 }
 </code></pre>
 <h3 id="step-5">Step 5</h3>
-<p>Finally, use the package</p>
-<h4 id="create-a-class-level-variable-in-your-state-class-of-any-stateful-widget">Create a class level variable in your State class of any stateful widget</h4>
-<p>Also make sure to import the library package in your dart file.</p>
-<pre class="language-dart"><code class="language-dart">class _MyAppState extends State&lt;MyApp&gt; {
+<p>Create a class level variable in your State class in the stateful widget</p>
+<pre class="language-dart"><code class="language-dart">import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
+...
+
+class _MyAppState extends State&lt;MyApp&gt; {
   SuperEasyInAppPurchase inAppPurchase;
   ...
 </code></pre>
-<h4 id="initialise-that-variable-in-initstate-method">Initialise that variable in <code>initState()</code> method</h4>
+<h3 id="step-6">Step 6</h3>
+<p>Initialise the variable in <code>initState()</code> method</p>
 <p>This is the most important and difficult step to understand.</p>
 <pre class="language-dart"><code class="language-dart">@override
 void initState() {
@@ -117,9 +120,10 @@ void initState() {
   );
 }
 </code></pre>
-<p><code>SuperEasyInAppPurchase()</code> constructor takes two parameters, first one is <code>whenSuccessfullyPurchased</code>, it takes a <code>Map&lt;String, Function&gt;</code> each pair in the map represents a Product ID (String) and its function which will executed after successfull purchase.</p>
-<p>The second optional parameter <code>whenUpgradeDisabled</code> also takes <code>Map&lt;String, Function&gt;</code> but this time, these functions will get executed when one of your product is refunded. So these functions main task is to disable the corresponding product.</p>
-<h4 id="start-a-purchase">Start a purchase</h4>
+<p><code>SuperEasyInAppPurchase()</code> constructor takes two parameters, first one is <code>whenSuccessfullyPurchased</code>, it takes a <code>Map&lt;String, Function&gt;</code> each pair in the map represents a Product ID (String) and its corresponding function which will executed after successfull purchase.</p>
+<p>The second optional parameter <code>whenUpgradeDisabled</code> also takes <code>Map&lt;String, Function&gt;</code> but this time, these functions will get executed when your product is refunded. So these function's main task is to disable the corresponding product (if already purchased).</p>
+<h3 id="step-7">Step 7</h3>
+<p>Start a purchase</p>
 <p>Write this line of code in your button's onPressed listener:</p>
 <pre class="language-dart"><code class="language-dart">await inAppPurchase.startPurchase('myProductID');
 </code></pre>
@@ -127,7 +131,8 @@ void initState() {
 <pre class="language-dart"><code class="language-dart">await inAppPurchase.startPurchase('myProductID', isConsumable: true);
 </code></pre>
 <p><strong>Note:</strong> Consumables are those products which needs to be purchased again and again, like - The fuel of racing car. By default, <code>isConsumable</code> parameter is set to <code>false</code>.</p>
-<h4 id="consumeremove-the-purchase">Consume(remove) the purchase</h4>
+<h3 id="step-8">Step 8</h3>
+<p>Consume(remove) the purchase</p>
 <p>In order to remove the purchase, use:</p>
 <pre class="language-dart"><code class="language-dart">await inAppPurchase.consumePurchase('myProductID');
 </code></pre>
@@ -163,7 +168,7 @@ Your donation seriously motivates me to develop more useful packages like this.<
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.0.1
+      0.0.2
   </span>
 
 </footer>

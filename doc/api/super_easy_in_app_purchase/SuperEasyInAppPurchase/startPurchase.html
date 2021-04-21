@@ -105,7 +105,8 @@ i.e. can be consumed later, using consumeProduct(id)</p>
     
     <section class="summary source-code" id="source">
       <h2><span>Implementation</span></h2>
-      <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; startPurchase(String productID, {bool isConsumable = false}) async {
+      <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; startPurchase(String productID,
+    {bool isConsumable = false}) async {
   for (var prod in _products) {
     if (_hasPurchased(prod.id) != null) {
       &#47;&#47; Already purchased
@@ -127,7 +128,7 @@ i.e. can be consumed later, using consumeProduct(id)</p>
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.0.1
+      0.0.2
   </span>
 
 </footer>

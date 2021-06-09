@@ -2,7 +2,7 @@
 
 A flutter plugin for creating in app purchase in a super simple way.
 
-In App Purchase(IAP) is a very complicated thing to implement in any mobile app for many years. Generally, it takes about 200 lines of code(in flutter) just to implement IAP. But I have tried my best to make it as simple as possible using this plugin.
+In App Purchase(IAP) is a very complicated thing to implement in any mobile app for many years. Generally, it takes about 200 lines of code just to implement in app purchase. But I have tried my best to make it as simple as possible using this plugin.
 
 Please support me via [Donation](https://paypal.me/riturajshakti). Your donation seriously motivates me to build many useful plugins like this.
 
@@ -88,17 +88,29 @@ void initState() {
     // This is completely an optional
     whenUpgradeDisabled: <String, Function>{
       'product1': () async => print('Product 1 refunded !'),
-      'product2': () async => print('product 2 refunded !'),
+      'product2': () async => print('product 2 deactivated !'),
     },
   );
 }
 ```
 
-`SuperEasyInAppPurchase()` constructor takes two parameters, first one is `whenSuccessfullyPurchased`, it takes a `Map<String, Function>` each pair in the map represents a Product ID (String) and its corresponding function which will executed after successfull purchase.
+`SuperEasyInAppPurchase()` constructor takes two parameters, first one is `whenSuccessfullyPurchased`, it takes a `Map<String, Function>` each pair in the map represents a Product ID (String) and its corresponding function which will executed after successfull purchase. These functions generally contains shared preferences data modifications.
 
-The second optional parameter `whenUpgradeDisabled` also takes `Map<String, Function>` but this time, these functions will get executed when your product is refunded. So these function's main task is to disable the corresponding product (if already purchased).
+The second optional parameter `whenUpgradeDisabled` also takes `Map<String, Function>` but this time, these functions will get executed when your product is refunded. So these function's main task is to disable the corresponding product.
 
 ### Step 7
+
+Prevent memory leaks by calling `stop()` method in your App State's `dispose()` method:
+
+```dart
+@override
+void dispose() {
+  inAppPurchase.stop();
+  super.dispose();
+}
+```
+
+### Step 8
 
 Start a purchase
 
@@ -114,9 +126,9 @@ or if your product is consumable, then use:
 await inAppPurchase.startPurchase('myProductID', isConsumable: true);
 ```
 
-**Note:** Consumables are those products which needs to be purchased again and again, like - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
+**Note:** Consumables are those products which needs to be purchased again and again, e.g. - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
 
-### Step 8 (Optional)
+### Step 9 (Optional)
 
 Consume(remove) the purchase
 
@@ -127,6 +139,16 @@ await inAppPurchase.consumePurchase('myProductID');
 ```
 
 When you consume a purchase, the user has to purchase it again in order to use its features.
+
+## Other useful packages
+
+- [super_easy_permissions](https://pub.dev/packages/super_easy_permissions)
+
+## References
+
+- [API docs of this package](https://pub.dev/documentation/super_easy_in_app_purchase/latest/super_easy_in_app_purchase/SuperEasyInAppPurchase-class.html)
+- [Complete example on github](https://github.com/riturajshakti/SuperEasyInAppPurchase/tree/main/example)
+- [Flutter official in app purchase codelab](https://codelabs.developers.google.com/codelabs/flutter-in-app-purchases)
 
 ## Issues
 

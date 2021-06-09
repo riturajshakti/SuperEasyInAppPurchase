@@ -87,7 +87,8 @@
   </div><!--/.sidebar-offcanvas-->
 
   <div id="dartdoc-main-content" class="main-content">
-      <div><h1><span class="kind-method">consumePurchase</span> method </h1></div>
+      <div><h1><span class="kind-method">consumePurchase</span> method     <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
 
     <section class="multi-line-signature">
       <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
@@ -105,9 +106,9 @@ i.e. It will consume(disable) the product</p>
     <section class="summary source-code" id="source">
       <h2><span>Implementation</span></h2>
       <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; consumePurchase(String productID) async {
-  for (var id in whenUpgradeDisabled.keys) {
+  for (var id in whenUpgradeDisabled!.keys) {
     if (id == productID) {
-      Function function = whenUpgradeDisabled[id];
+      Function function = whenUpgradeDisabled![id]!;
       await function();
       await _iap.consumePurchase(
         _purchases.firstWhere((purchase) =&gt; purchase.productID == productID),
@@ -127,7 +128,7 @@ i.e. It will consume(disable) the product</p>
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.0.3
+      0.1.0
   </span>
 
 </footer>

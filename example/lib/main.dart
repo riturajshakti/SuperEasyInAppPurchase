@@ -36,6 +36,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void dispose() {
+    inAppPurchase.stop();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -55,8 +61,7 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
               child: Text('Activate product 2'),
               onPressed: () async {
-                await inAppPurchase.startPurchase('product2',
-                    isConsumable: true);
+                await inAppPurchase.startPurchase('product2', isConsumable: true);
               },
             ),
             SizedBox(height: 10),

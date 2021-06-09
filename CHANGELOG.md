@@ -1,3 +1,9 @@
+## 0.1.0
+
+- Bug Fix: Running all products purchase when a single product purchase function runs
+- Documentation updates
+- Supports null safety
+
 ## 0.0.3
 
 - Modified Documentation

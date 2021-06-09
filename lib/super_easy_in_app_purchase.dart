@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 /// A wrapper widget class to handle all the complex things of in app purchases
@@ -20,13 +20,17 @@ class SuperEasyInAppPurchase {
   /// These functions also usually contains SharedPreference modifications
   /// and can be async function.
   /// Setting this is an optional choice, but is recommended
-  final Map<String, Function> whenUpgradeDisabled;
+  final Map<String, Function>? whenUpgradeDisabled;
 
   SuperEasyInAppPurchase({
-    @required this.whenSuccessfullyPurchased,
+    required this.whenSuccessfullyPurchased,
     this.whenUpgradeDisabled,
   }) {
     _initialize().then((_) {});
+    Future.delayed(
+      Duration(seconds: 15),
+      () async => await _checkAndRemoveAllProducts(),
+    );
   }
 
   /// Is the API available on the device
@@ -42,7 +46,7 @@ class SuperEasyInAppPurchase {
   List<PurchaseDetails> _purchases = [];
 
   /// Updates to purchases
-  StreamSubscription _subscription;
+  late StreamSubscription _subscription;
 
   /// This will initiate the IAP.
   /// Call this function only once in your entire app.
@@ -91,14 +95,11 @@ class SuperEasyInAppPurchase {
     QueryPurchaseDetailsResponse response = await _iap.queryPastPurchases();
 
     for (PurchaseDetails purchaseDetails in response.pastPurchases) {
-      if (purchaseDetails.billingClientPurchase.purchaseState ==
-          PurchaseStateWrapper.purchased) {
+      if (purchaseDetails.billingClientPurchase!.purchaseState == PurchaseStateWrapper.purchased) {
         // Activating the pro if product is purchased
         _deliverProduct(purchaseDetails.productID);
       }
-      final pending = Platform.isIOS
-          ? purchaseDetails.pendingCompletePurchase
-          : !purchaseDetails.billingClientPurchase.isAcknowledged;
+      final pending = Platform.isIOS ? purchaseDetails.pendingCompletePurchase : !purchaseDetails.billingClientPurchase!.isAcknowledged;
 
       if (pending) {
         InAppPurchaseConnection.instance.completePurchase(purchaseDetails);
@@ -108,10 +109,9 @@ class SuperEasyInAppPurchase {
   }
 
   /// Returns purchase of specific product ID
-  PurchaseDetails _hasPurchased(String productID) {
-    return _purchases.firstWhere(
+  PurchaseDetails? _hasPurchased(String productID) {
+    return _purchases.firstWhereOrNull(
       (purchase) => purchase.productID == productID,
-      orElse: () => null,
     );
   }
 
@@ -119,7 +119,7 @@ class SuperEasyInAppPurchase {
   Future<void> _verifyPurchase() async {
     if (_products == null) return;
     for (var prod in _products) {
-      PurchaseDetails purchase = _hasPurchased(prod.id);
+      PurchaseDetails? purchase = _hasPurchased(prod.id);
 
       // do your serverside verification & record consumable in the database
 
@@ -137,9 +137,20 @@ class SuperEasyInAppPurchase {
   /// it does not consume the product from appstore/playstore
   Future<void> _removeProduct(String id) async {
     if (whenUpgradeDisabled == null) return;
-    for (var productID in whenUpgradeDisabled.keys) {
+    for (var productID in whenUpgradeDisabled!.keys) {
       if (id == productID) {
-        Function function = whenUpgradeDisabled[id];
+        Function function = whenUpgradeDisabled![id]!;
+        await function();
+      }
+    }
+  }
+
+  /// This will remove those products which are not purchased or refunded
+  Future<void> _checkAndRemoveAllProducts() async {
+    if (whenUpgradeDisabled == null) return;
+    for (var productID in whenUpgradeDisabled!.keys) {
+      if (_hasPurchased(productID) != null) {
+        Function function = whenUpgradeDisabled![productID]!;
         await function();
       }
     }
@@ -158,7 +169,7 @@ class SuperEasyInAppPurchase {
   Future<void> _deliverProduct(String productID) async {
     for (var id in whenSuccessfullyPurchased.keys) {
       if (id == productID) {
-        Function function = whenSuccessfullyPurchased[id];
+        Function function = whenSuccessfullyPurchased[id]!;
         await function();
       }
     }
@@ -167,13 +178,13 @@ class SuperEasyInAppPurchase {
   /// Start a purchase.
   /// isConsumable parameter checks if the product can be disabled later.
   /// i.e. can be consumed later, using consumeProduct(id)
-  Future<void> startPurchase(String productID,
-      {bool isConsumable = false}) async {
+  Future<void> startPurchase(String productID, {bool isConsumable = false}) async {
+    await _checkAndRemoveAllProducts();
     for (var prod in _products) {
       if (_hasPurchased(prod.id) != null) {
         // Already purchased
         await _deliverProduct(prod.id);
-      } else {
+      } else if (prod.id == productID) {
         _buyProduct(prod, isConsumable: isConsumable);
       }
     }
@@ -183,9 +194,9 @@ class SuperEasyInAppPurchase {
   /// This will remove the product from purchase list.
   /// i.e. It will consume(disable) the product
   Future<void> consumePurchase(String productID) async {
-    for (var id in whenUpgradeDisabled.keys) {
+    for (var id in whenUpgradeDisabled!.keys) {
       if (id == productID) {
-        Function function = whenUpgradeDisabled[id];
+        Function function = whenUpgradeDisabled![id]!;
         await function();
         await _iap.consumePurchase(
           _purchases.firstWhere((purchase) => purchase.productID == productID),

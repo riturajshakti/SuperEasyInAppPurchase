@@ -79,8 +79,6 @@
 
 
 
-    <li class="section-title"><a href="../../super_easy_in_app_purchase/SuperEasyInAppPurchase-class.html#static-methods">Static methods</a></li>
-    <li><a href="../../super_easy_in_app_purchase/SuperEasyInAppPurchase/start.html">start</a></li>
 
 </ol>
 
@@ -100,19 +98,16 @@
     <section class="desc markdown">
       <p>Use it carefully.
 This will remove the product from purchase list.
-i.e. It will consume(disable) the product</p>
+i.e. It will consume/disable the product</p>
     </section>
     
     <section class="summary source-code" id="source">
       <h2><span>Implementation</span></h2>
       <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; consumePurchase(String productID) async {
-  for (var id in whenUpgradeDisabled!.keys) {
+  for (final id in whenUpgradeDisabled!.keys) {
     if (id == productID) {
       Function function = whenUpgradeDisabled![id]!;
       await function();
-      await _iap.consumePurchase(
-        _purchases.firstWhere((purchase) =&gt; purchase.productID == productID),
-      );
     }
   }
 }</code></pre>
@@ -128,7 +123,7 @@ i.e. It will consume(disable) the product</p>
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.1.0
+      0.1.2
   </span>
 
 </footer>

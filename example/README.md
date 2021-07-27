@@ -21,40 +21,19 @@ dependencies:
 
 Make sure to **GET** all the pub packages after saving this file.
 
-### Step 2:
-
-#### Android
-
-Add the **INTERNET** permission in your `AndroidManifest.xml` file:
-
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-```
-
-### Step 3
+### Step 2
 
 Create in app product in your google play account and app store account. Follow the links for more detail steps:
 
-[Creating In App Product in Google Play Store](support.google.com/googleplay/android-developer/answer/1153481)
+[Creating In App Product in Google Play Store](https://support.google.com/googleplay/android-developer/answer/1153481)
 
 [Creating In App Product in Apple App Store](https://help.apple.com/app-store-connect/#/devae49fb316)
 
-### Step 4
+Don't call this function more than once in your entire app, otherwise it will raise an Error.
 
-In your `main()` function in `main.dart` file, import the package and add the static method- `start()`:
+### Step 3
 
-```dart
-import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
-
-void main() {
-  SuperEasyInAppPurchase.start();
-  runApp(MyApp());
-}
-```
-
-### Step 5
-
-Create a class level variable in your State class in the stateful widget
+Create a class level variable (e.g. `inAppPurchase`) in your State class in stateful widget
 
 ```dart
 import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
@@ -65,7 +44,7 @@ class _MyAppState extends State<MyApp> {
   ...
 ```
 
-### Step 6
+### Step 4
 
 Initialise the variable in `initState()` method
 
@@ -77,28 +56,29 @@ void initState() {
   super.initState();
   inAppPurchase = SuperEasyInAppPurchase(
     // Any of these function will run when its corresponding product gets purchased successfully
-    // For simplicity, I have just printed a message to console
+    // For simplicity, only a message is printed to console
     whenSuccessfullyPurchased: <String, Function>{
-      'product1': () async => print('Product 1 purchased!'),
+      'product1': () => print('Product 1 purchased!'),
       'product2': () async => print('product 2 activated!'),
+      'product3': () {},
     },
 
     // Any of these function will run when its corresponding product gets refunded
-    // For simplicity, I have just printed a message to console
-    // This is completely an optional
     whenUpgradeDisabled: <String, Function>{
       'product1': () async => print('Product 1 refunded !'),
-      'product2': () async => print('product 2 deactivated !'),
+      'product2': () => print('product 2 deactivated !'),
     },
   );
 }
 ```
 
-`SuperEasyInAppPurchase()` constructor takes two parameters, first one is `whenSuccessfullyPurchased`, it takes a `Map<String, Function>` each pair in the map represents a Product ID (String) and its corresponding function which will executed after successfull purchase. These functions generally contains shared preferences data modifications.
+`SuperEasyInAppPurchase()` constructor takes two parameters:
 
-The second optional parameter `whenUpgradeDisabled` also takes `Map<String, Function>` but this time, these functions will get executed when your product is refunded. So these function's main task is to disable the corresponding product.
+(i) `whenSuccessfullyPurchased`: It takes a `Map<String, Function>`. Each pair in this map represents a Product ID (String) and its corresponding function, which gets executed after successful purchase. These functions generally contains shared preferences data modifications.
 
-### Step 7
+(ii) `whenUpgradeDisabled`: This also takes `Map<String, Function>` but this time, these functions will get executed when the product is refunded. So these function's main task is to disable the corresponding product. This parameter is optional but recommended.
+
+### Step 5
 
 Prevent memory leaks by calling `stop()` method in your App State's `dispose()` method:
 
@@ -110,32 +90,32 @@ void dispose() {
 }
 ```
 
-### Step 8
+### Step 6
 
 Start a purchase
 
 Write this line of code in your button's onPressed listener:
 
 ```dart
-await inAppPurchase.startPurchase('myProductID');
+await inAppPurchase.startPurchase('product1');
 ```
 
 or if your product is consumable, then use:
 
 ```dart
-await inAppPurchase.startPurchase('myProductID', isConsumable: true);
+await inAppPurchase.startPurchase('product1', isConsumable: true);
 ```
 
-**Note:** Consumables are those products which needs to be purchased again and again, e.g. - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
+**Note:** _Consumables_ are those products which needs to be purchased again and again, e.g. - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
 
-### Step 9 (Optional)
+### Step 7 (Optional)
 
-Consume(remove) the purchase
+Consume(disable) the purchase
 
 In order to remove the purchase, use:
 
 ```dart
-await inAppPurchase.consumePurchase('myProductID');
+await inAppPurchase.consumePurchase('product1');
 ```
 
 When you consume a purchase, the user has to purchase it again in order to use its features.

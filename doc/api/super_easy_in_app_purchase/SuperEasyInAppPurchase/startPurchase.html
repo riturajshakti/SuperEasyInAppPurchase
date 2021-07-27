@@ -79,8 +79,6 @@
 
 
 
-    <li class="section-title"><a href="../../super_easy_in_app_purchase/SuperEasyInAppPurchase-class.html#static-methods">Static methods</a></li>
-    <li><a href="../../super_easy_in_app_purchase/SuperEasyInAppPurchase/start.html">start</a></li>
 
 </ol>
 
@@ -106,12 +104,14 @@ i.e. can be consumed later, using consumeProduct(id)</p>
     
     <section class="summary source-code" id="source">
       <h2><span>Implementation</span></h2>
-      <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; startPurchase(String productID, {bool isConsumable = false}) async {
-  await _checkAndRemoveAllProducts();
+      <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; startPurchase(String productID,
+    {bool isConsumable = false}) async {
+  &#47;&#47; await _checkAndRemoveAllProducts();
   for (var prod in _products) {
-    if (_hasPurchased(prod.id) != null) {
+    final purchase = _hasPurchased(prod.id);
+    if (purchase != null) {
       &#47;&#47; Already purchased
-      await _deliverProduct(prod.id);
+      await _deliverProduct(prod.id, purchase);
     } else if (prod.id == productID) {
       _buyProduct(prod, isConsumable: isConsumable);
     }
@@ -129,7 +129,7 @@ i.e. can be consumed later, using consumeProduct(id)</p>
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.1.0
+      0.1.2
   </span>
 
 </footer>

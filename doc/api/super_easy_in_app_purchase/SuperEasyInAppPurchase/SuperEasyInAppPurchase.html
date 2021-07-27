@@ -79,8 +79,6 @@
 
 
 
-    <li class="section-title"><a href="../../super_easy_in_app_purchase/SuperEasyInAppPurchase-class.html#static-methods">Static methods</a></li>
-    <li><a href="../../super_easy_in_app_purchase/SuperEasyInAppPurchase/start.html">start</a></li>
 
 </ol>
 
@@ -105,10 +103,10 @@
   this.whenUpgradeDisabled,
 }) {
   _initialize().then((_) {});
-  Future.delayed(
-    Duration(seconds: 15),
-    () async =&gt; await _checkAndRemoveAllProducts(),
-  );
+  &#47;&#47; Future.delayed(
+  &#47;&#47;   Duration(seconds: 15),
+  &#47;&#47;   () async =&gt; await _checkAndRemoveAllProducts(),
+  &#47;&#47; );
 }</code></pre>
     </section>
 
@@ -122,7 +120,7 @@
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.1.0
+      0.1.2
   </span>
 
 </footer>

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
 
 void main() {
-  SuperEasyInAppPurchase.start();
   runApp(MyApp());
 }
 
@@ -19,18 +18,17 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     inAppPurchase = SuperEasyInAppPurchase(
       // Any of these function will run when its corresponding product gets purchased successfully
-      // For simplicity, I have just printed a message to console
+      // For simplicity, only a message is printed to console
       whenSuccessfullyPurchased: <String, Function>{
-        'product1': () async => print('Product 1 purchased!'),
+        'product1': () => print('Product 1 purchased!'),
         'product2': () async => print('product 2 activated!'),
+        'product3': () {},
       },
 
       // Any of these function will run when its corresponding product gets refunded
-      // For simplicity, I have just printed a message to console
-      // This is completely an optional, but recommended
       whenUpgradeDisabled: <String, Function>{
         'product1': () async => print('Product 1 refunded !'),
-        'product2': () async => print('product 2 deactivated !'),
+        'product2': () => print('product 2 deactivated !'),
       },
     );
   }
@@ -61,7 +59,8 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
               child: Text('Activate product 2'),
               onPressed: () async {
-                await inAppPurchase.startPurchase('product2', isConsumable: true);
+                await inAppPurchase.startPurchase('product2',
+                    isConsumable: true);
               },
             ),
             SizedBox(height: 10),

@@ -128,10 +128,8 @@ and can be async function.
         <dd>
           String refers to productID, Function refers to callback for successfull refund.
 In these functions, you have to disable the pro products.
-These functions will be called when a user successfully purchased its corresponding product.
-These functions also usually contains SharedPreference modifications
-and can be async function.
-Setting this is an optional choice, but is recommended 
+These functions will be called when a user successfully refunded its corresponding product.
+These functions also usually contains SharedPreference modifications and can be async function. 
                   <div class="features">final</div>
 </dd>
       </dl>
@@ -148,7 +146,7 @@ Setting this is an optional choice, but is recommended
         <dd>
           Use it carefully.
 This will remove the product from purchase list.
-i.e. It will consume(disable) the product 
+i.e. It will consume/disable the product 
                   
 </dd>
         <dt id="noSuchMethod" class="callable inherited">
@@ -208,23 +206,6 @@ i.e. can be consumed later, using consumeProduct(id)
     </section>
 
 
-    <section class="summary offset-anchor" id="static-methods">
-      <h2>Static Methods</h2>
-      <dl class="callables">
-        <dt id="start" class="callable">
-          <span class="name"><a href="../super_easy_in_app_purchase/SuperEasyInAppPurchase/start.html">start</a></span><span class="signature">(<wbr>)
-            <span class="returntype parameter">&#8594; void</span>
-          </span>
-                  </dt>
-        <dd>
-          This will initiate the IAP.
-Call this function only once in your entire app.
-i.e. inside the first line of main() function
-Otherwise, it will raise an Error 
-                  
-</dd>
-      </dl>
-    </section>
 
 
   </div> <!-- /.main-content -->
@@ -256,8 +237,6 @@ Otherwise, it will raise an Error
 
 
 
-    <li class="section-title"><a href="../super_easy_in_app_purchase/SuperEasyInAppPurchase-class.html#static-methods">Static methods</a></li>
-    <li><a href="../super_easy_in_app_purchase/SuperEasyInAppPurchase/start.html">start</a></li>
 
 </ol>
 
@@ -268,7 +247,7 @@ Otherwise, it will raise an Error
 <footer>
   <span class="no-break">
     super_easy_in_app_purchase
-      0.1.0
+      0.1.2
   </span>
 
 </footer>

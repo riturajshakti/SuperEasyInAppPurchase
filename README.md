@@ -29,8 +29,6 @@ Create in app product in your google play account and app store account. Follow 
 
 [Creating In App Product in Apple App Store](https://help.apple.com/app-store-connect/#/devae49fb316)
 
-Don't call this function more than once in your entire app, otherwise it will raise an Error.
-
 ### Step 3
 
 Create a class level variable (e.g. `inAppPurchase`) in your State class in stateful widget

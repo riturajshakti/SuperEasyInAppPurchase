@@ -1,3 +1,7 @@
+## 0.1.3
+
+- Minor changes in README.md
+
 ## 0.1.2
 
 - Package Upgrade

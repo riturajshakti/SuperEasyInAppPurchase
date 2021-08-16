@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
 
 void main() {
+  SuperEasyInAppPurchase.start();
   runApp(MyApp());
 }
 

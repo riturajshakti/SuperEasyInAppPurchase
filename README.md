@@ -31,6 +31,19 @@ Create in app product in your google play account and app store account. Follow 
 
 ### Step 3
 
+Call the static `start()` method in your `main()` function:
+
+```dart
+import 'package:super_easy_in_app_purchase/super_easy_in_app_purchase.dart';
+
+void main() {
+  SuperEasyInAppPurchase.start();
+  runApp(MyApp());
+}
+```
+
+### Step 4
+
 Create a class level variable (e.g. `inAppPurchase`) in your State class in stateful widget
 
 ```dart
@@ -42,9 +55,9 @@ class _MyAppState extends State<MyApp> {
   ...
 ```
 
-### Step 4
+### Step 5
 
-Initialise the variable in `initState()` method
+Initialise that variable in `initState()` method
 
 This is the most important and difficult step to understand.
 
@@ -76,7 +89,7 @@ void initState() {
 
 (ii) `whenUpgradeDisabled`: This also takes `Map<String, Function>` but this time, these functions will get executed when the product is refunded. So these function's main task is to disable the corresponding product. This parameter is optional but recommended.
 
-### Step 5
+### Step 6
 
 Prevent memory leaks by calling `stop()` method in your App State's `dispose()` method:
 
@@ -88,7 +101,7 @@ void dispose() {
 }
 ```
 
-### Step 6
+### Step 7
 
 Start a purchase
 
@@ -106,7 +119,7 @@ await inAppPurchase.startPurchase('product1', isConsumable: true);
 
 **Note:** _Consumables_ are those products which needs to be purchased again and again, e.g. - The fuel of racing car. By default, `isConsumable` parameter is set to `false`.
 
-### Step 7 (Optional)
+### Step 8 (Optional)
 
 Consume(disable) the purchase
 
@@ -139,4 +152,4 @@ Your donation seriously motivates me to develop more useful packages like this.*
 
 ## Author
 
-This Permission plugin for Flutter is developed by [Rituraj Shakti](https://www.freelancer.com/u/riturajshakti). You can contact me at <riturajshakti@gmail.com>
+This flutter plugin is developed by [Rituraj Shakti](https://www.freelancer.com/u/riturajshakti). You can contact me at <riturajshakti@gmail.com>

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 /// A wrapper widget class to handle all the complex things of in app purchases
 /// and allows users to focus on business logic rather than focusing on in app
@@ -44,6 +46,14 @@ class SuperEasyInAppPurchase {
 
   /// Updates to purchases
   late StreamSubscription _subscription;
+
+  /// This method is used for initialization and must be called in main() function.
+  /// This must be called only once
+  static void start() {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
+    }
+  }
 
   /// This will stop the IAP listeners, preventing memory leaks
   void stop() {

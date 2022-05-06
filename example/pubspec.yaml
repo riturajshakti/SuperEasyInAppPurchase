@@ -9,9 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   # Make sure to always use the latest version
-  super_easy_in_app_purchase: any
+  super_easy_in_app_purchase: ^0.2.0
 
 flutter:
   uses-material-design: true

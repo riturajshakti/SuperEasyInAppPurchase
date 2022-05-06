@@ -1,3 +1,9 @@
+## 0.2.0
+
+* __Bug Fix__: Major bug fixes
+* Constructor parameters phanged
+* `consumePurchase()` is now replaced with `removeProduct()`
+
 ## 0.1.4
 
 * __Bug Fix__: Added start( ) method whose absence results in payment failure

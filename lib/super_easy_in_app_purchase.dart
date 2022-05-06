@@ -1,59 +1,24 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart' show IterableExtension;
-import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
-/// A wrapper widget class to handle all the complex things of in app purchases
+/// A wrapper widget class around in_app_purchase to handle all the complex things of in app purchases
 /// and allows users to focus on business logic rather than focusing on in app
 /// purchase implementation logic
 class SuperEasyInAppPurchase {
-  /// String refers to productID, Function refers to callback for successfull purchase.
-  /// These functions will be called when a user successfully purchased its corresponding product.
-  /// These functions usually contains SharedPreference modifications
-  /// and can be async function.
-  final Map<String, Function> whenSuccessfullyPurchased;
-
-  /// String refers to productID, Function refers to callback for successfull refund.
-  /// In these functions, you have to disable the pro products.
-  /// These functions will be called when a user successfully refunded its corresponding product.
-  /// These functions also usually contains SharedPreference modifications and can be async function.
-  final Map<String, Function>? whenUpgradeDisabled;
+  final List<InAppPurchaseItem> inAppPurchaseItems;
+  final Function? onProductsFetchError;
 
   SuperEasyInAppPurchase({
-    required this.whenSuccessfullyPurchased,
-    this.whenUpgradeDisabled,
+    required this.inAppPurchaseItems,
+    this.onProductsFetchError,
   }) {
-    _initialize().then((_) {});
-    // Future.delayed(
-    //   Duration(seconds: 15),
-    //   () async => await _checkAndRemoveAllProducts(),
-    // );
+    _initialize();
   }
 
-  /// Is the API available on the device
-  bool _available = true;
-
-  /// The In App Purchase plugin
-  InAppPurchase _iap = InAppPurchase.instance;
-
-  /// Products for sale
   List<ProductDetails> _products = [];
-
-  /// Past purchases
   List<PurchaseDetails> _purchases = [];
-
-  /// Updates to purchases
   late StreamSubscription _subscription;
-
-  /// This method is used for initialization and must be called in main() function.
-  /// This must be called only once
-  static void start() {
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
-    }
-  }
 
   /// This will stop the IAP listeners, preventing memory leaks
   void stop() {
@@ -62,42 +27,59 @@ class SuperEasyInAppPurchase {
 
   /// Initialize in app purchase
   Future<void> _initialize() async {
-    // Check availability of In App Purchases
-    _available = await _iap.isAvailable();
+    // Listen to new purchases
+    _subscription = InAppPurchase.instance.purchaseStream.listen(
+      (purchaseDetailsList) => () async {
+        _listenToPurchaseUpdated(purchaseDetailsList);
+      },
+      onError: onProductsFetchError,
+    );
+    _initStoreInfo();
+  }
 
-    if (_available) {
-      await _getProducts();
-      await _iap.restorePurchases();
-      // Verify and deliver a purchase with your own business logic
-      await _verifyPurchase();
+  Future<void> _initStoreInfo() async {
+    final bool isAvailable = await InAppPurchase.instance.isAvailable();
+    if (!isAvailable) {
+      return;
     }
 
-    // Listen to new purchases
-    _subscription = _iap.purchaseStream.listen(
-      (data) => () async {
-        _purchases.addAll(data);
-        await _verifyPurchase();
+    // Step 1: get all products from app store
+    final Set<String> productIds =
+        inAppPurchaseItems.map<String>((e) => e.productId).toSet();
+    final ProductDetailsResponse productDetailResponse =
+        await InAppPurchase.instance.queryProductDetails(productIds);
+
+    _products = productDetailResponse.productDetails;
+
+    // Step 2: recall products stream listener
+    await InAppPurchase.instance.restorePurchases();
+
+    // Step 3: check each products
+    _verifyPurchase();
+  }
+
+  void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
+    purchaseDetailsList.forEach(
+      (PurchaseDetails purchaseDetails) async {
+        if (purchaseDetails.status == PurchaseStatus.pending) {
+          // show pending UI
+        } else if (purchaseDetails.status == PurchaseStatus.error) {
+          // handle purchase error
+        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
+            purchaseDetails.status == PurchaseStatus.restored) {
+          await _deliverProduct(purchaseDetails);
+        }
+
+        if (purchaseDetails.status != PurchaseStatus.pending &&
+            purchaseDetails.pendingCompletePurchase) {
+          await InAppPurchase.instance.completePurchase(purchaseDetails);
+        }
       },
     );
   }
 
-  /// Get all products available for sale
-  Future<void> _getProducts() async {
-    Set<String> ids = Set.from(whenSuccessfullyPurchased.keys);
-
-    ProductDetailsResponse response = await _iap.queryProductDetails(ids);
-    _products = response.productDetails;
-  }
-
-  /// Returns purchase of specific product ID
-  PurchaseDetails? _hasPurchased(String productID) {
-    return _purchases.firstWhereOrNull(
-      (purchase) => purchase.productID == productID,
-    );
-  }
-
   /// Your own business logic to setup a consumable
-  Future<void> _verifyPurchase() async {
+  void _verifyPurchase() {
     for (var prod in _products) {
       PurchaseDetails? purchase = _hasPurchased(prod.id);
 
@@ -107,10 +89,37 @@ class SuperEasyInAppPurchase {
           (purchase.status == PurchaseStatus.purchased ||
               purchase.status == PurchaseStatus.restored)) {
         // Deliver the product
-        await _deliverProduct(prod.id, purchase);
+        _deliverProduct(purchase);
       } else {
         // Remove the product
-        await _removeProduct(prod.id);
+        _removeProduct(prod.id);
+      }
+    }
+  }
+
+  /// Returns purchase of specific product ID
+  PurchaseDetails? _hasPurchased(String productID) {
+    try {
+      return _purchases.firstWhere(
+        (purchase) => purchase.productID == productID,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// This will deliver the product
+  Future<void> _deliverProduct(PurchaseDetails purchase) async {
+    for (var id in inAppPurchaseItems.map((e) => e.productId)) {
+      if (inAppPurchaseItems.any((e) => e.productId == id)) {
+        final item = inAppPurchaseItems.firstWhere((e) => e.productId == id);
+        await item.onPurchaseComplete();
+        if (!_purchases.any((p) => p.productID == purchase.productID)) {
+          _purchases.add(purchase);
+        }
+        if (purchase.pendingCompletePurchase) {
+          await InAppPurchase.instance.completePurchase(purchase);
+        }
       }
     }
   }
@@ -118,74 +127,90 @@ class SuperEasyInAppPurchase {
   /// This will remove the product only,
   /// it does not consume the product from appstore/playstore
   Future<void> _removeProduct(String id) async {
-    if (whenUpgradeDisabled == null) return;
-    for (final productID in whenUpgradeDisabled!.keys) {
-      if (id == productID) {
-        Function function = whenUpgradeDisabled![id]!;
-        await function();
-      }
-    }
-  }
-
-  /// This will remove those products which are not purchased or refunded
-  Future<void> _checkAndRemoveAllProducts() async {
-    if (whenUpgradeDisabled == null) return;
-    for (final productID in whenUpgradeDisabled!.keys) {
-      if (_hasPurchased(productID) != null) {
-        Function function = whenUpgradeDisabled![productID]!;
-        await function();
+    for (var id in inAppPurchaseItems.map((e) => e.productId)) {
+      if (inAppPurchaseItems.any((e) => e.productId == id)) {
+        final item = inAppPurchaseItems.firstWhere((e) => e.productId == id);
+        await item.onPurchaseRefunded();
       }
     }
   }
 
   /// Purchase a product
-  void _buyProduct(ProductDetails prod, {bool isConsumable = false}) {
+  Future<void> _buyProduct(ProductDetails prod) async {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: prod);
-    if (isConsumable)
-      _iap.buyConsumable(purchaseParam: purchaseParam, autoConsume: true);
-    else
-      _iap.buyNonConsumable(purchaseParam: purchaseParam);
-  }
-
-  /// This will deliver the product
-  Future<void> _deliverProduct(
-      String productID, PurchaseDetails purchase) async {
-    for (var id in whenSuccessfullyPurchased.keys) {
-      if (id == productID) {
-        Function function = whenSuccessfullyPurchased[id]!;
-        await function();
-        if (purchase.pendingCompletePurchase)
-          await _iap.completePurchase(purchase);
-      }
+    InAppPurchaseItem item;
+    if (!inAppPurchaseItems.any((e) => e.productId == prod.id)) {
+      throw 'ProductNotFoundError: Product with this id was not provided at the time of initialization';
+    }
+    item = inAppPurchaseItems.firstWhere((e) => e.productId == prod.id);
+    if (item.isConsumable) {
+      await InAppPurchase.instance
+          .buyConsumable(purchaseParam: purchaseParam, autoConsume: true);
+    } else {
+      await InAppPurchase.instance
+          .buyNonConsumable(purchaseParam: purchaseParam);
     }
   }
 
   /// Start a purchase.
-  /// isConsumable parameter checks if the product can be disabled later.
-  /// i.e. can be consumed later, using consumeProduct(id)
-  Future<void> startPurchase(String productID,
-      {bool isConsumable = false}) async {
-    // await _checkAndRemoveAllProducts();
+  Future<void> startPurchase(String productID) async {
     for (var prod in _products) {
       final purchase = _hasPurchased(prod.id);
       if (purchase != null) {
         // Already purchased
-        await _deliverProduct(prod.id, purchase);
+        await _deliverProduct(purchase);
       } else if (prod.id == productID) {
-        _buyProduct(prod, isConsumable: isConsumable);
+        await _buyProduct(prod);
       }
     }
   }
 
   /// Use it carefully.
+  ///
   /// This will remove the product from purchase list.
+  ///
   /// i.e. It will consume/disable the product
-  Future<void> consumePurchase(String productID) async {
-    for (final id in whenUpgradeDisabled!.keys) {
-      if (id == productID) {
-        Function function = whenUpgradeDisabled![id]!;
-        await function();
-      }
-    }
+  Future<void> removeProduct(String productID) async {
+    await _removeProduct(productID);
+  }
+}
+
+/// A model class for each in app purchase item.
+class InAppPurchaseItem {
+  /// This is the unique product id for in app purchase
+  String productId;
+
+  /// This checks if the product is consumable.
+  ///
+  /// A consumable is a product which can be disabled after certain use. e.g. Fuel of a vehicle, Gold coins, etc.
+  bool isConsumable;
+
+  /// This function will get executed when [productId] product is successfully purchased.
+  ///
+  /// It could also be an async function
+  ///
+  /// Its main task is to activate the product (like changing shared preference data)
+  Function onPurchaseComplete;
+
+  /// This will get executed when [productId] product is refunded.
+  ///
+  /// It could also be an async function
+  ///
+  /// Its main task is to deactivate the product.
+  Function onPurchaseRefunded;
+
+  InAppPurchaseItem({
+    required this.productId,
+    required this.onPurchaseComplete,
+    required this.onPurchaseRefunded,
+    this.isConsumable = false,
+  });
+
+  @override
+  int get hashCode => productId.hashCode;
+
+  @override
+  bool operator ==(Object o) {
+    return o is InAppPurchaseItem && o.productId == productId;
   }
 }

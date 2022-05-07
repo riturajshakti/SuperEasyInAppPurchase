@@ -1,3 +1,7 @@
+## 0.2.2
+
+* __Bug Fixes__
+
 ## 0.2.1
 
 * __Major Bug Fixes__

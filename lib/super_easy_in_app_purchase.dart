@@ -18,7 +18,7 @@ class SuperEasyInAppPurchase {
 
   List<ProductDetails> _products = [];
   List<PurchaseDetails> _purchases = [];
-  late StreamSubscription _subscription;
+  late StreamSubscription<List<PurchaseDetails>> _subscription;
 
   /// This will stop the IAP listeners, preventing memory leaks
   void stop() {
@@ -38,18 +38,18 @@ class SuperEasyInAppPurchase {
   }
 
   Future<void> _initStoreInfo() async {
-    final bool isAvailable = await InAppPurchase.instance.isAvailable();
+    final isAvailable = await InAppPurchase.instance.isAvailable();
     if (!isAvailable) {
+      print('IAP not available !');
       return;
     }
 
     // Step 1: get all products from app store
     final Set<String> productIds =
         inAppPurchaseItems.map<String>((e) => e.productId).toSet();
-    final ProductDetailsResponse productDetailResponse =
+    final ProductDetailsResponse response =
         await InAppPurchase.instance.queryProductDetails(productIds);
-
-    _products = productDetailResponse.productDetails;
+    _products = response.productDetails;
 
     // Step 2: recall products stream listener
     await InAppPurchase.instance.restorePurchases();
@@ -65,6 +65,7 @@ class SuperEasyInAppPurchase {
           // show pending UI
         } else if (purchaseDetails.status == PurchaseStatus.error) {
           // handle purchase error
+          await _removeProduct(purchaseDetails.productID);
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
           await _deliverProduct(purchaseDetails);
@@ -90,9 +91,6 @@ class SuperEasyInAppPurchase {
               purchase.status == PurchaseStatus.restored)) {
         // Deliver the product
         _deliverProduct(purchase);
-      } else {
-        // Remove the product
-        _removeProduct(prod.id);
       }
     }
   }
@@ -110,16 +108,15 @@ class SuperEasyInAppPurchase {
 
   /// This will deliver the product
   Future<void> _deliverProduct(PurchaseDetails purchase) async {
-    for (var id in inAppPurchaseItems.map((e) => e.productId)) {
-      if (inAppPurchaseItems.any((e) => e.productId == id)) {
-        final item = inAppPurchaseItems.firstWhere((e) => e.productId == id);
-        await item.onPurchaseComplete();
-        if (!_purchases.any((p) => p.productID == purchase.productID)) {
-          _purchases.add(purchase);
-        }
-        if (purchase.pendingCompletePurchase) {
-          await InAppPurchase.instance.completePurchase(purchase);
-        }
+    if (inAppPurchaseItems.any((e) => e.productId == purchase.productID)) {
+      final item = inAppPurchaseItems
+          .firstWhere((e) => e.productId == purchase.productID);
+      await item.onPurchaseComplete();
+      if (_purchases.every((p) => p.productID != purchase.productID)) {
+        _purchases.add(purchase);
+      }
+      if (purchase.pendingCompletePurchase) {
+        await InAppPurchase.instance.completePurchase(purchase);
       }
     }
   }
@@ -130,6 +127,7 @@ class SuperEasyInAppPurchase {
     for (var id in inAppPurchaseItems.map((e) => e.productId)) {
       if (inAppPurchaseItems.any((e) => e.productId == id)) {
         final item = inAppPurchaseItems.firstWhere((e) => e.productId == id);
+        if (!item.isConsumable) return;
         await item.onPurchaseRefunded();
       }
     }
@@ -139,13 +137,13 @@ class SuperEasyInAppPurchase {
   Future<void> _buyProduct(ProductDetails prod) async {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: prod);
     InAppPurchaseItem item;
-    if (!inAppPurchaseItems.any((e) => e.productId == prod.id)) {
-      throw 'ProductNotFoundError: Product with this id was not provided at the time of initialization';
+    if (inAppPurchaseItems.every((e) => e.productId != prod.id)) {
+      print('Product Item not found !');
+      return;
     }
     item = inAppPurchaseItems.firstWhere((e) => e.productId == prod.id);
     if (item.isConsumable) {
-      await InAppPurchase.instance
-          .buyConsumable(purchaseParam: purchaseParam, autoConsume: true);
+      await InAppPurchase.instance.buyConsumable(purchaseParam: purchaseParam);
     } else {
       await InAppPurchase.instance
           .buyNonConsumable(purchaseParam: purchaseParam);
